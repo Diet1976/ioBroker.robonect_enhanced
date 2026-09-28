@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "robonect",
-    "version": "1.4.2",
+    "version": "1.5.0-enhanced.0",
     "news": {
+      "1.5.0-enhanced.0": {
+        "en": "Fork robonect_enhanced: no password in log, rest periods over midnight, request timeout, weather timestamp fix, weather.remaining, optional polling while sleeping, status.charging, weather.reason, info.lastUpdate.*, quieter ping warnings",
+        "de": "Fork robonect_enhanced: kein Passwort im Log, Ruhezeiten über Mitternacht, Timeout für Anfragen, Wetter-Zeitstempel korrigiert, weather.remaining, optionale Abfrage im Schlaf, status.charging, weather.reason, info.lastUpdate.*, weniger Ping-Warnungen"
+      },
       "1.4.2": {
         "en": "Fix: Minor fix in readme.md for release script",
         "de": "Fix: Minor fix in readme. md für Releaseskript",
