@@ -273,7 +273,21 @@
             "desc": ""
         },
         "native": {},
-        "value": "weather.timestamp.unix_timestamp"
+        "value": "weather.timestamp.unix"
+    },
+    "weather.remaining": {
+        "type": "state",
+        "common": {
+            "name": "Seconds since the blocking weather condition ended (Robonect keeps the break for a while after that)",
+            "type": "number",
+            "role": "value",
+            "unit": "s",
+            "read": true,
+            "write": false,
+            "desc": "Counts up while the weather break is still active although no condition is set anymore"
+        },
+        "native": {},
+        "value": "weather.remaining"
     },
     "weather.break": {
         "type": "state",
