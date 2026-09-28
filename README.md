@@ -70,6 +70,9 @@ permission issue between the iobroker user and the ping utility.
 
 ## Changelog
 
+### 1.5.0-enhanced.1
+* (Diet1976) Change: weather.reason keeps the previous reason during the waiting time
+
 ### 1.5.0-enhanced.0 (fork Diet1976/ioBroker.robonect_enhanced)
 * (Diet1976) Fix: the Robonect password is no longer written to the log on HTTP 401
 * (Diet1976) Fix: rest periods spanning midnight (e.g. 22:00-06:00) were not detected
