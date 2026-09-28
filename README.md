@@ -25,6 +25,20 @@ This is an ioBroker adapter for your Robonect HX enabled lawn mower.
 * For every API request it is possible to choose the polling interval (status or info) or don't poll at all.
 * push service: when activated select the IP address and port the adapter should listen to.
 
+### Poll module data while mower sleeps
+While the mower sleeps or is switched off (status 16/17) the adapter only polls the status by default.
+With this option the data kept by the Robonect module itself - weather, WLAN, timer, error list, portal, push and
+extensions - is polled as well, without waking the mower. Useful e.g. to see the weather break (night rest) update
+over night or a weekend. Battery, hours, motor, door and GPS are still only polled while the mower is awake.
+
+### Additional states
+| State | Description |
+|---|---|
+| `status.charging` | `true` while the mower charges: status 4 **or** a positive battery current (Robonect sometimes still reports 17 "sleeping" while charging) |
+| `weather.reason` | Reason of the weather break, e.g. `too wet, no mowing at night`; empty if there is none. After the condition ended Robonect keeps the break for a while - the previous reason is kept with the suffix ` (waiting time)` |
+| `weather.remaining` | Sent by Robonect: seconds since the blocking condition ended. On the author's installation it stays at 14400 while a condition is active and the break ended when it reached 14400 again (4 h) - this may depend on the Robonect settings |
+| `info.lastUpdate.<area>` | Time of the last successful update per API area (`status`, `weather`, `battery`, ...) - shows at once whether values are current |
+
 ### Password for Robonect
 
 Versions older than v1.3.0 required a simple password - only containing lower- and uppercase letters as well as numbers.
