@@ -19,6 +19,8 @@ const url = require('url');
 const REQUEST_TIMEOUT = 10000;
 // consecutive failed pings before a warning is logged
 const PING_WARN_AFTER = 3;
+// weather.reason while Robonect keeps the break after the condition ended and the previous reason is unknown
+const WAITING = 'waiting time after condition ended';
 
 class Robonect extends utils.Adapter {
 
@@ -869,8 +871,10 @@ class Robonect extends utils.Adapter {
         if (await val('weather.break') === true) {
             const active = [];
             for (const k of Object.keys(REASONS)) if (await val('weather.condition.' + k) === true) active.push(REASONS[k]);
-            // no condition set anymore, but Robonect keeps the break for a while (see weather.remaining)
-            reason = active.length ? active.join(', ') : 'waiting time after condition ended';
+            // no condition set anymore, but Robonect keeps the break for a while (see weather.remaining):
+            // keep the previous reason (persisted in the state, so it survives a restart) and mark the waiting time
+            const prev = String(await val('weather.reason') || '').replace(/ \(waiting time\)$/, '');
+            reason = active.length ? active.join(', ') : prev && prev !== WAITING ? prev + ' (waiting time)' : WAITING;
         }
         await this.setStateAsync('weather.reason', {val: reason, ack: true});
     }
