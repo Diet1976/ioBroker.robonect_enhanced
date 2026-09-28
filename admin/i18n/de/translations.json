@@ -63,5 +63,7 @@
     "errMain": "Allgemein",
     "errMain_desc": "Unterdrückt allgemeine Fehler",
     "errPing": "Ping",
-    "errPing_desc": "Keine Antwort bei Ping wird ignoriert"
+    "errPing_desc": "Keine Antwort bei Ping wird ignoriert",
+    "Poll module data while mower sleeps": "Moduldaten auch abfragen, wenn der Mäher schläft",
+    "pollWhileSleeping_desc": "Wetter, WLAN, Timer, Fehlerliste, Portal, Push und Erweiterungen werden vom Robonect-Modul selbst gehalten und auch im Schlaf (Status 16/17) abgefragt, ohne den Mäher zu wecken."
 }

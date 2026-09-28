@@ -63,5 +63,7 @@
     "errMain": "一般错误",
     "errMain_desc": "抑制一般错误",
     "errPing": "平移",
-    "errPing_desc": "忽略无响应的平移"
+    "errPing_desc": "忽略无响应的平移",
+    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
+    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
 }

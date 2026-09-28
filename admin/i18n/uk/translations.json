@@ -63,5 +63,7 @@
     "errMain": "Загальні",
     "errMain_desc": "Пригнічує загальні помилки",
     "errPing": "Пінг",
-    "errPing_desc": "Ігнорується відсутність відповіді на пінг"
+    "errPing_desc": "Ігнорується відсутність відповіді на пінг",
+    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
+    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
 }

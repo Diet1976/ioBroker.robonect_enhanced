@@ -417,6 +417,14 @@
             "md": 3,
             "lg": 2
         },
+        "pollWhileSleeping": {
+            "type": "checkbox",
+            "label": "Poll module data while mower sleeps",
+            "tooltip": "pollWhileSleeping_desc",
+            "sm": 8,
+            "md": 6,
+            "lg": 4
+        },
         "statusInterval": {
             "newLine": false,
             "type": "number",

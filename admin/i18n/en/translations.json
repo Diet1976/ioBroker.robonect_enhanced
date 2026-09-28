@@ -58,10 +58,12 @@
     "NoPoll": "No polling",
     "Status": "Status",
     "Info": "Info",
-    "GarageDoor":"Garage door",
+    "GarageDoor": "Garage door",
     "Ignore errors": "Ignore errors",
     "errMain": "General",
     "errMain_desc": "Suppress general errors",
     "errPing": "Ping",
-    "errPing_desc": "No response to Ping is ignored"
+    "errPing_desc": "No response to Ping is ignored",
+    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
+    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
 }

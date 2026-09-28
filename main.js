@@ -558,18 +558,22 @@ class Robonect extends utils.Adapter {
                     doRegularPoll = true;
                 }
             }
+            // Data kept by the Robonect module itself (not by the mower) can be read while the mower sleeps
+            // without waking it up - optional, so values like the weather break don't freeze over night/weekend
+            const sleepPoll = adapter.config.pollWhileSleeping === true && isRestTime === false && adapter.currentStatus != null && !doRegularPoll;
             adapter.log.debug('pollType: ' + pollType);
             adapter.log.debug('isRestTime: ' + isRestTime);
             adapter.log.debug('currentStatus: ' + adapter.currentStatus);
             adapter.log.debug('doRegularPoll: ' + doRegularPoll);
+            adapter.log.debug('sleepPoll: ' + sleepPoll);
             try {
                 if (adapter.batteryPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.batteryPollType === pollType && doRegularPoll)))
                     await adapter.sendApiCmd('cmd=battery', true);
                 if (adapter.doorPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.doorPollType === pollType && doRegularPoll)))
                     await adapter.sendApiCmd('cmd=door', true);
-                if (adapter.errorsPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.errorsPollType === pollType && doRegularPoll)))
+                if (adapter.errorsPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.errorsPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=error', true);
-                if (adapter.extensionPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.extensionPollType === pollType && doRegularPoll)))
+                if (adapter.extensionPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.extensionPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=ext', true);
                 if (adapter.gpsPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.gpsPollType === pollType && doRegularPoll)))
                     await adapter.sendApiCmd('cmd=gps', true);
@@ -577,17 +581,17 @@ class Robonect extends utils.Adapter {
                     await adapter.sendApiCmd('cmd=hour', true);
                 if (adapter.motorPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.motorPollType === pollType && doRegularPoll)))
                     await adapter.sendApiCmd('cmd=motor', true);
-                if (adapter.portalPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.portalPollType === pollType && doRegularPoll)))
+                if (adapter.portalPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.portalPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=portal', true);
-                if (adapter.pushPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.pushPollType === pollType && doRegularPoll)))
+                if (adapter.pushPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.pushPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=push', true);
-                if (adapter.timerPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.timerPollType === pollType && doRegularPoll)))
+                if (adapter.timerPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.timerPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=timer', true);
                 if (adapter.versionPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.versionPollType === pollType && doRegularPoll)))
                     await adapter.sendApiCmd('cmd=version', true);
-                if (adapter.weatherPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.weatherPollType === pollType && doRegularPoll)))
+                if (adapter.weatherPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.weatherPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=weather', true);
-                if (adapter.wlanPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.wlanPollType === pollType && doRegularPoll)))
+                if (adapter.wlanPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.wlanPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=wlan', true);
                 adapter.log.debug('Polling done');
             }
