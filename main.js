@@ -506,6 +506,18 @@ class Robonect extends utils.Adapter {
             }
         }
 
+        // derived states
+        await this.setObjectNotExistsAsync('status.charging', {
+            type: 'state',
+            common: {name: 'Charging (status 4 or positive battery current - Robonect sometimes reports "sleeping" while charging)', type: 'boolean', role: 'indicator.charging', read: true, write: false},
+            native: {},
+        });
+        await this.setObjectNotExistsAsync('weather.reason', {
+            type: 'state',
+            common: {name: 'Reason of the weather break (empty if none)', type: 'string', role: 'text', read: true, write: false},
+            native: {},
+        });
+
         // time of the last successful update per API area - shows at once whether values are current
         for (const cmd of ['battery', 'door', 'error', 'ext', 'gps', 'hour', 'motor', 'portal', 'push', 'status', 'timer', 'version', 'weather', 'wlan']) {
             await this.setObjectNotExistsAsync('info.lastUpdate.' + cmd, {
@@ -602,6 +614,7 @@ class Robonect extends utils.Adapter {
                     await adapter.sendApiCmd('cmd=weather', true);
                 if (adapter.wlanPollType !== 'NoPoll' && (pollType === 'Initial' || (adapter.wlanPollType === pollType && (doRegularPoll || sleepPoll))))
                     await adapter.sendApiCmd('cmd=wlan', true);
+                await adapter.updateDerivedStates();
                 adapter.log.debug('Polling done');
             }
             catch (err) {
@@ -857,6 +870,26 @@ class Robonect extends utils.Adapter {
             });
     }
 
+
+    /**
+     * Derived states: status.charging and weather.reason
+     */
+    async updateDerivedStates() {
+        const val = async (id) => { const st = await this.getStateAsync(id); return st ? st.val : null; };
+        const status = Number(await val('status.status')), current = Number(await val('batteries.0.current'));
+        // 2 = mowing: current is negative anyway, but never report "charging" while mowing
+        await this.setStateAsync('status.charging', {val: status === 4 || (status !== 2 && current > 0), ack: true});
+
+        const REASONS = {toorainy: 'too rainy', toowet: 'too wet', toocold: 'too cold', toowarm: 'too warm', toodry: 'too dry', day: 'no mowing at day', night: 'no mowing at night'};
+        let reason = '';
+        if (await val('weather.break') === true) {
+            const active = [];
+            for (const k of Object.keys(REASONS)) if (await val('weather.condition.' + k) === true) active.push(REASONS[k]);
+            // no condition set anymore, but Robonect keeps the break for a while (see weather.remaining)
+            reason = active.length ? active.join(', ') : 'waiting time after condition ended';
+        }
+        await this.setStateAsync('weather.reason', {val: reason, ack: true});
+    }
 
     /**
      * Check if current time is in a rest period
