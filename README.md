@@ -69,6 +69,16 @@ executing  `sudo chmod 4755 /bin/ping` in a shell inside the ioBroker container.
 permission issue between the iobroker user and the ping utility.
 
 ## Changelog
+### **WORK IN PROGRESS**
+- (Diet1976) Fix: the Robonect password is no longer written to the log on HTTP 401
+- (Diet1976) Fix: rest periods spanning midnight (e.g. 22:00-06:00) were not detected
+- (Diet1976) Fix: 10 s timeout for all requests to the Robonect module
+- (Diet1976) Fix: weather.timestamp.unix_timestamp is mapped to the field Robonect sends (timestamp.unix)
+- (Diet1976) New: weather.remaining (seconds since the blocking weather condition ended)
+- (Diet1976) New: option "Poll module data while mower sleeps" (weather, wlan, timer, errors, portal, push, ext) - default off
+- (Diet1976) New: status.charging (status 4 or positive battery current) and weather.reason
+- (Diet1976) New: info.lastUpdate.<area> - time of the last successful update per API area
+
 ### 1.4.2 (2024-10-01)
 - (grizzelbee) Fix: Minor fix in readme.md for release script
 
