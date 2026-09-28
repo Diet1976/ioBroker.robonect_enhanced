@@ -880,8 +880,8 @@ class Robonect extends utils.Adapter {
             if (start <= test && test <= end)
                 return true;
         } else {
-            // End time is (after) midnight
-            if (end <= test && test >= start)
+            // End time is (after) midnight, e.g. 22:00-06:00: before midnight (>= start) or after it (<= end)
+            if (test >= start || test <= end)
                 return true;
         }
 
