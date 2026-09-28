@@ -496,6 +496,15 @@ class Robonect extends utils.Adapter {
                 this.log.silly('Object \'' + id + '\' created');
             }
         }
+
+        // time of the last successful update per API area - shows at once whether values are current
+        for (const cmd of ['battery', 'door', 'error', 'ext', 'gps', 'hour', 'motor', 'portal', 'push', 'status', 'timer', 'version', 'weather', 'wlan']) {
+            await this.setObjectNotExistsAsync('info.lastUpdate.' + cmd, {
+                type: 'state',
+                common: {name: 'Last successful update: ' + cmd, type: 'number', role: 'value.time', read: true, write: false},
+                native: {},
+            });
+        }
     }
 
     /**
@@ -660,6 +669,7 @@ class Robonect extends utils.Adapter {
                         if (updateObjectsAfterCall){
                             const objects = require('./lib/objects_' + PARAMS.cmd + '.json');
                             adapter.updateObjects(objects, response.data);
+                            adapter.setState('info.lastUpdate.' + PARAMS.cmd, {val: Date.now(), ack: true});
                         }
                         adapter.log.debug(`Sending of command [${cmd}] - done!`);
                         resolve(response.data);
