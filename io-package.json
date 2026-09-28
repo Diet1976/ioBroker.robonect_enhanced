@@ -177,6 +177,7 @@
     "robonectIp": "",
     "pushService": false,
     "pingFirst": true,
+    "pollWhileSleeping": false,
     "pushServiceIp": "192.168.x.x",
     "pushServicePort": 55443,
     "statusInterval": 60,

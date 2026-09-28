@@ -58,5 +58,7 @@
     "NoPoll": "Pas de sondage",
     "Status": "Statut",
     "Info": "Info",
-    "GarageDoor": "Porte de garage"
+    "GarageDoor": "Porte de garage",
+    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
+    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
 }
