@@ -15,6 +15,9 @@ const axios = require('axios');
 const http = require('http');
 const url = require('url');
 
+// a hanging request to the Robonect module must not block the adapter forever
+const REQUEST_TIMEOUT = 10000;
+
 class Robonect extends utils.Adapter {
 
     /**
@@ -672,7 +675,7 @@ class Robonect extends utils.Adapter {
             this.log.debug(`Sending of command [${JSON.stringify(PARAMS)}] started`);
         }
         return new Promise((resolve, reject) => {
-            axios.get(adapter.apiUrl,  {auth: {username: this.username, password: this.password}, params: PARAMS})
+            axios.get(adapter.apiUrl,  {auth: {username: this.username, password: this.password}, timeout: REQUEST_TIMEOUT, params: PARAMS})
                 .then( function (response){
                     adapter.log.debug('Data returned from robonect device: '+JSON.stringify(response.data));
                     if (response.data.successful === true) {
@@ -705,7 +708,7 @@ class Robonect extends utils.Adapter {
         const PARAMS = {cmd: 'error', clear:0, reset:0};
         if (clear) PARAMS.clear = 1;
         if (reset) PARAMS.reset = 1;
-        axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, params: PARAMS})
+        axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, timeout: REQUEST_TIMEOUT, params: PARAMS})
             .then((response)=>{
                 try {
                     if (response.data.successful === true) {
@@ -714,7 +717,7 @@ class Robonect extends utils.Adapter {
                         if (reset && response.data.error_code === 13) {
                             this.log.info('Trying to reset status....');
                             PARAMS.cmd = 'status';
-                            axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, params: PARAMS})
+                            axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, timeout: REQUEST_TIMEOUT, params: PARAMS})
                                 .then((response)=>{
                                     try {
                                         if (response.data.successful === true) {
@@ -763,7 +766,7 @@ class Robonect extends utils.Adapter {
         }, function(error) {
             return Promise.reject(error);
         });
-        axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, params:PARAMS })
+        axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, timeout: REQUEST_TIMEOUT, params:PARAMS })
             .then((response)=>{
                 try {
                     if (response.data.successful === true) {
@@ -821,7 +824,7 @@ class Robonect extends utils.Adapter {
                 this.log.warn('Mode is invalid');
                 return;
         }
-        axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, params: PARAMS})
+        axios.get(adapter.apiUrl, {auth: {username: this.username, password: this.password}, timeout: REQUEST_TIMEOUT, params: PARAMS})
             .then((response) => {
                 try {
                     if (response.data.successful === true) {
