@@ -64,6 +64,6 @@
     "errMain_desc": "Onderdrukt algemene fouten",
     "errPing": "Ping",
     "errPing_desc": "Geen reactie op ping wordt genegeerd",
-    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
-    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
+    "Poll module data while mower sleeps": "Modulegegevens opvragen terwijl de maaier slaapt",
+    "pollWhileSleeping_desc": "Weer, WLAN, timer, foutenlijst, portaal, push en uitbreidingen worden bijgehouden door de Robonect-module zelf en worden ook opgevraagd terwijl de maaier slaapt (status 16/17) zonder hem wakker te maken."
 }

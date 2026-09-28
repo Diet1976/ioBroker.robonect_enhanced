@@ -64,6 +64,6 @@
     "errMain_desc": "Sopprime gli errori generali",
     "errPing": "Ping",
     "errPing_desc": "Nessuna risposta al ping viene ignorata",
-    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
-    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
+    "Poll module data while mower sleeps": "Interroga i dati del modulo mentre il rasaerba è in modalità di riposo",
+    "pollWhileSleeping_desc": "Meteo, WLAN, timer, elenco errori, portale, push ed estensioni vengono conservati dal modulo Robonect stesso e vengono interrogati anche mentre il rasaerba dorme (stato 16/17) senza svegliarlo."
 }

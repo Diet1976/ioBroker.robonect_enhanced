@@ -64,6 +64,6 @@
     "errMain_desc": "抑制一般错误",
     "errPing": "平移",
     "errPing_desc": "忽略无响应的平移",
-    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
-    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
+    "Poll module data while mower sleeps": "割草机休眠时轮询模块数据",
+    "pollWhileSleeping_desc": "天气、WLAN、计时器、错误列表、门户、推送和扩展由 Robonect 模块本身保存，并且在割草机睡眠（状态 16/17）时也会进行轮询，而不会唤醒它。"
 }

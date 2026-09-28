@@ -64,6 +64,6 @@
     "errMain_desc": "Pomija błędy ogólne",
     "errPing": "Ping",
     "errPing_desc": "Brak odpowiedzi na ping jest ignorowany",
-    "Poll module data while mower sleeps": "Poll module data while mower sleeps",
-    "pollWhileSleeping_desc": "Weather, WLAN, timer, error list, portal, push and extensions are kept by the Robonect module itself and are also polled while the mower sleeps (status 16/17) without waking it up."
+    "Poll module data while mower sleeps": "Odpytuj dane modułu, gdy kosiarka śpi",
+    "pollWhileSleeping_desc": "Pogoda, WLAN, timer, lista błędów, portal, push i rozszerzenia są przechowywane przez sam moduł Robonect i są również odpytywane, gdy kosiarka śpi (stan 16/17) bez jej budzenia."
 }
