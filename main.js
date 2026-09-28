@@ -17,6 +17,8 @@ const url = require('url');
 
 // a hanging request to the Robonect module must not block the adapter forever
 const REQUEST_TIMEOUT = 10000;
+// consecutive failed pings before a warning is logged
+const PING_WARN_AFTER = 3;
 
 class Robonect extends utils.Adapter {
 
@@ -537,6 +539,8 @@ class Robonect extends utils.Adapter {
             adapter.log.debug('Adapter is configured not to ping the robonect device - assuming it´s online.');
         }
         if (hostOnline) {
+            if (adapter.pingFailures >= PING_WARN_AFTER) adapter.log.info('Lawn mower is reachable again.');
+            adapter.pingFailures = 0;
             let doRegularPoll = false;
             const isRestTime = adapter.isRestTime();
             if (pollType === 'Initial') {
@@ -610,7 +614,13 @@ class Robonect extends utils.Adapter {
                 adapter.doErrorHandling(err);
             }
         } else {
-            adapter.log.warn('No connection to lawn mower (Not able to ping it). Check network connection.');
+            // a mower at the edge of the WLAN drops out briefly all the time - only warn if it stays unreachable
+            adapter.pingFailures = (adapter.pingFailures || 0) + 1;
+            if (adapter.pingFailures === PING_WARN_AFTER) {
+                adapter.log.warn(`No connection to lawn mower (not able to ping it ${PING_WARN_AFTER} times in a row). Check network connection.`);
+            } else {
+                adapter.log.debug(`Lawn mower not reachable by ping (${adapter.pingFailures}x in a row).`);
+            }
         }
     }
 
