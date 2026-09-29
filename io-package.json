@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "robonect",
-    "version": "1.4.2",
+    "version": "1.5.0-fork.1",
     "news": {
+      "1.5.0-fork.1": {
+        "en": "Fork Diet1976: fixes (password log, rest period over midnight, request timeout, weather timestamp), weather.remaining/reason, status.charging, info.lastUpdate, poll while sleeping, mowing jobs (job.*) with planned start/end and remaining time",
+        "de": "Fork Diet1976: Fehlerbehebungen (Passwort im Log, Ruhezeit über Mitternacht, Request-Timeout, Wetter-Zeitstempel), weather.remaining/reason, status.charging, info.lastUpdate, Abfrage im Schlaf, Mähaufträge (job.*) mit geplantem Start/Ende und Restzeit"
+      },
       "1.4.2": {
         "en": "Fix: Minor fix in readme.md for release script",
         "de": "Fix: Minor fix in readme. md für Releaseskript",
@@ -44,17 +48,17 @@
       }
     },
     "titleLang": {
-      "en": "Robonect HX",
-      "de": "Robonect HX",
-      "ru": "Робонект HX",
-      "pt": "Robonect HX",
-      "nl": "Robonect HX",
-      "fr": "Robonect HX",
-      "it": "Robonect HX",
-      "es": "Robonect HX",
-      "pl": "Robonect HX",
-      "uk": "Robonect HX",
-      "zh-cn": "Robonect HX"
+      "en": "Robonect HX (Fork Diet1976)",
+      "de": "Robonect HX (Fork Diet1976)",
+      "ru": "Robonect HX (Fork Diet1976)",
+      "pt": "Robonect HX (Fork Diet1976)",
+      "nl": "Robonect HX (Fork Diet1976)",
+      "fr": "Robonect HX (Fork Diet1976)",
+      "it": "Robonect HX (Fork Diet1976)",
+      "es": "Robonect HX (Fork Diet1976)",
+      "pl": "Robonect HX (Fork Diet1976)",
+      "uk": "Robonect HX (Fork Diet1976)",
+      "zh-cn": "Robonect HX (Fork Diet1976)"
     },
     "desc": {
       "en": "Robonect HX for lawn mower robots from Husquarna, Flymo, McCulloch and Gardena",

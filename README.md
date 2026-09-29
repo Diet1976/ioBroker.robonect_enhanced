@@ -101,7 +101,7 @@ executing  `sudo chmod 4755 /bin/ping` in a shell inside the ioBroker container.
 permission issue between the iobroker user and the ping utility.
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.5.0-fork.1 (2026-09-29)
 - (Diet1976) Fix: the Robonect password is no longer written to the log on HTTP 401
 - (Diet1976) Fix: rest periods spanning midnight (e.g. 22:00-06:00) were not detected
 - (Diet1976) Fix: 10 s timeout for all requests to the Robonect module
