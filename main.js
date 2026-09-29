@@ -245,6 +245,7 @@ class Robonect extends utils.Adapter {
         try {
             clearTimeout(this.infoTimeout);
             clearTimeout(this.statusTimeout);
+            clearTimeout(this.infoRetryTimeout);
 
             this.log.info('cleaned everything up...');
             callback();
@@ -661,6 +662,12 @@ class Robonect extends utils.Adapter {
                 }
             }
         } else {
+            // a single lost ping (weak WLAN) would skip weather, timer, errors, ... for a whole info interval: retry in a minute
+            if (pollType === 'Info' || pollType === 'Initial') {
+                adapter.log.debug(`Ping failed - ${pollType} poll is retried in 60 seconds`);
+                clearTimeout(adapter.infoRetryTimeout);
+                adapter.infoRetryTimeout = setTimeout(() => adapter.updateRobonectData(pollType), 60000);
+            }
             adapter.failedPing++;
             if (adapter.failedPing >= adapter.ignPing) {
                adapter.log.warn('No connection to lawn mower (Not able to ping it). Check network connection.');

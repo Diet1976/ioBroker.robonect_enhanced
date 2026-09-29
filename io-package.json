@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "robonect",
-    "version": "1.5.0-fork.2",
+    "version": "1.5.0-fork.3",
     "news": {
+      "1.5.0-fork.3": {
+        "en": "Fix: a failed ping before the info poll retries it after 60 s instead of skipping a whole info interval",
+        "de": "Fix: Scheitert der Ping vor der Info-Abfrage, wird sie nach 60 s wiederholt statt ein ganzes Info-Intervall auszulassen"
+      },
       "1.5.0-fork.2": {
         "en": "Fix: a mowing job counts as running until its planned end (Robonect keeps reporting mode Auto during a job); new job.started",
         "de": "Fix: Ein Mähauftrag gilt bis zum geplanten Ende als laufend (Robonect meldet währenddessen Modus Auto); neu job.started"

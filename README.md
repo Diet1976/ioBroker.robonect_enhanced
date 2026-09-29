@@ -104,6 +104,9 @@ executing  `sudo chmod 4755 /bin/ping` in a shell inside the ioBroker container.
 permission issue between the iobroker user and the ping utility.
 
 ## Changelog
+### 1.5.0-fork.3 (2026-09-29)
+- (Diet1976) Fix: if the ping before the info poll fails (weak WLAN), the info poll is retried after 60 s instead of skipping weather, timer, errors, ... for a whole info interval
+
 ### 1.5.0-fork.2 (2026-09-29)
 - (Diet1976) Fix: a job counts as running until its planned end - Robonect keeps reporting mode Auto during a job
 
