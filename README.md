@@ -39,6 +39,24 @@ over night or a weekend. Battery, hours, motor, door and GPS are still only poll
 | `weather.remaining` | Sent by Robonect: seconds since the blocking condition ended. On the author's installation it stays at 14400 while a condition is active and the break ended when it reached 14400 again (4 h) - this may depend on the Robonect settings |
 | `info.lastUpdate.<area>` | Time of the last successful update per API area (`status`, `weather`, `battery`, ...) - shows at once whether values are current |
 
+### Mowing jobs
+Set the parameters and press `job.send` (setting `status.mode` to 99 does the same):
+
+| State | Description |
+|---|---|
+| `job.start` | Start time `hh:mm`, empty = immediately |
+| `job.end` | End time `hh:mm`; empty = `job.duration` is used |
+| `job.duration` | Duration in minutes (1-10080); the clock keeps running while the mower charges |
+| `job.after` | Mode after the job: 3 Auto, 1 Home, 2 End of day |
+| `job.remotestart` | 0 Normal, 1 from charging station, 2-6 remote start 1-5 |
+| `job.corridor` | -1 Normal (not sent), 0-9 corridor width - **changes the mower's setting** |
+| `job.send` / `job.cancel` | Send the job / cancel it (switches to mode Auto) |
+
+The Robonect API does not report start, end or remaining time of a job, so the adapter tracks the jobs it sent itself:
+`job.requested` (time sent), `job.plannedStart`, `job.plannedEnd`, `job.active` (mode Job) and `job.remaining`
+(minutes until the planned end, updated with every status poll). Jobs placed in the Robonect web UI or app only show up
+as `status.mode` 99 without times. Any other mode set by the adapter ends the tracked job.
+
 ### Password for Robonect
 
 Versions older than v1.3.0 required a simple password - only containing lower- and uppercase letters as well as numbers.
@@ -92,6 +110,7 @@ permission issue between the iobroker user and the ping utility.
 - (Diet1976) New: option "Poll module data while mower sleeps" (weather, wlan, timer, errors, portal, push, ext) - default off
 - (Diet1976) New: status.charging (status 4 or positive battery current) and weather.reason
 - (Diet1976) New: info.lastUpdate.<area> - time of the last successful update per API area
+- (Diet1976) New: mowing jobs with parameters (job.*) incl. requested time, planned start/end and remaining time
 
 ### 1.4.2 (2024-10-01)
 - (grizzelbee) Fix: Minor fix in readme.md for release script

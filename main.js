@@ -276,6 +276,13 @@ class Robonect extends utils.Adapter {
                 this.updateExtensionStatus('out2', state.val);
             } else if (id === this.namespace + '.status.mode') {
                 this.updateMode(state.val);
+            } else if (id === this.namespace + '.job.send') {
+                this.sendJob();
+            } else if (id === this.namespace + '.job.cancel') {
+                this.updateMode(0);
+            } else if (id.startsWith(this.namespace + '.job.')) {
+                // parameter written by the user - confirm it
+                this.setState(id, {val: state.val, ack: true});
             }
             switch (trigger){
                 case 'name':
@@ -519,6 +526,31 @@ class Robonect extends utils.Adapter {
             common: {name: 'Reason of the weather break (empty if none)', type: 'string', role: 'text', read: true, write: false},
             native: {},
         });
+
+        // mowing job: parameters (writable), send/cancel buttons and the job tracked by the adapter itself -
+        // the Robonect API does not report start/end or remaining time of a running job
+        const JOB_OBJECTS = {
+            'job.start': {name: 'Job start time hh:mm (empty = immediately)', type: 'string', role: 'text', write: true, def: ''},
+            'job.end': {name: 'Job end time hh:mm (empty = use duration)', type: 'string', role: 'text', write: true, def: ''},
+            'job.duration': {name: 'Job duration (used if no end time is set; the clock keeps running while charging)', type: 'number', role: 'level', unit: 'min', min: 1, max: 10080, write: true, def: 60},
+            'job.after': {name: 'Mode after the job', type: 'number', role: 'level', write: true, def: 3, states: {'3': 'Auto', '1': 'Home', '2': 'End of day'}},
+            'job.remotestart': {name: 'Remote start point', type: 'number', role: 'level', write: true, def: 0,
+                states: {'0': 'Normal', '1': 'From charging station', '2': 'Remote start 1', '3': 'Remote start 2', '4': 'Remote start 3', '5': 'Remote start 4', '6': 'Remote start 5'}},
+            'job.corridor': {name: 'Corridor width (-1 = Normal)', type: 'number', role: 'level', write: true, def: -1,
+                states: {'-1': 'Normal', '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9'}},
+            'job.send': {name: 'Send mowing job with the parameters above', type: 'boolean', role: 'button', read: false, write: true},
+            'job.cancel': {name: 'Cancel mowing job (switch to mode Auto)', type: 'boolean', role: 'button', read: false, write: true},
+            'job.requested': {name: 'Time the last job was sent', type: 'number', role: 'value.time', write: false},
+            'job.plannedStart': {name: 'Planned start of the last job', type: 'number', role: 'value.time', write: false},
+            'job.plannedEnd': {name: 'Planned end of the last job', type: 'number', role: 'value.time', write: false},
+            'job.active': {name: 'Job running or waiting for its start (mode Job)', type: 'boolean', role: 'indicator', write: false},
+            'job.remaining': {name: 'Remaining job time', type: 'number', role: 'value', unit: 'min', write: false},
+        };
+        for (const id of Object.keys(JOB_OBJECTS)) {
+            await this.setObjectNotExistsAsync(id, {type: 'state', common: {read: true, ...JOB_OBJECTS[id]}, native: {}});
+            const st = await this.getStateAsync(id);
+            if ((!st || st.val === null) && JOB_OBJECTS[id].def !== undefined) await this.setStateAsync(id, {val: JOB_OBJECTS[id].def, ack: true});
+        }
 
         // time of the last successful update per API area - shows at once whether values are current
         for (const cmd of ['battery', 'door', 'error', 'ext', 'gps', 'hour', 'motor', 'portal', 'push', 'status', 'timer', 'version', 'weather', 'wlan']) {
@@ -847,8 +879,9 @@ class Robonect extends utils.Adapter {
                 PARAMS.mode = 'eod';
                 break;
             case 99:
-                PARAMS.mode = 'job';
-                break;
+                // a job needs its parameters and is tracked by the adapter
+                this.sendJob();
+                return;
             default:
                 this.log.warn('Mode is invalid');
                 return;
@@ -857,8 +890,8 @@ class Robonect extends utils.Adapter {
             .then((response) => {
                 try {
                     if (response.data.successful === true) {
-                        adapter.setState('status.mode', { val: mode, ack: true });
                         adapter.log.info('Mode set to ' + PARAMS.mode);
+                        adapter.endJob(mode);
                     } else {
                         this.doErrorHandling(response.data);
                     }
@@ -874,7 +907,88 @@ class Robonect extends utils.Adapter {
 
 
     /**
-     * Derived states: status.charging and weather.reason
+     * Send a mowing job with the parameters in job.* and remember its planned start and end
+     * /json?cmd=mode&mode=job&start=hh:mm&end=hh:mm|duration=min&after=..&remotestart=..&corridor=..
+     */
+    async sendJob() {
+        const val = async (id) => { const st = await this.getStateAsync(id); return st ? st.val : null; };
+        const start = String(await val('job.start') || '').trim();
+        const end = String(await val('job.end') || '').trim();
+        const duration = Number(await val('job.duration'));
+        const after = Number(await val('job.after'));
+        const remotestart = Number(await val('job.remotestart'));
+        const corridor = await val('job.corridor');
+        if ((start && !this.isValidTimeFormat(start)) || (end && !this.isValidTimeFormat(end))) {
+            this.log.warn(`Job not sent: start/end must be hh:mm (start='${start}', end='${end}')`);
+            return;
+        }
+        if (!end && !(duration >= 1 && duration <= 10080)) {
+            this.log.warn(`Job not sent: neither an end time nor a valid duration (1-10080 min) is set`);
+            return;
+        }
+        const PARAMS = {cmd: 'mode', mode: 'job', after: [1, 2, 3].includes(after) ? after : 3, remotestart: remotestart >= 0 && remotestart <= 6 ? remotestart : 0};
+        if (start) PARAMS.start = start;
+        if (end) PARAMS.end = end; else PARAMS.duration = duration;
+        // only send the corridor if it differs from Normal - it changes the mower's setting
+        if (corridor !== null && Number(corridor) >= 0 && Number(corridor) <= 9) PARAMS.corridor = Number(corridor);
+
+        // planned times: a start/end time lies at its next occurrence
+        const now = Date.now();
+        const nextAt = (hhmm, from) => {
+            const [h, m] = hhmm.split(':').map(Number);
+            const d = new Date(from);
+            d.setHours(h, m, 0, 0);
+            if (d.getTime() < from - 60000) d.setDate(d.getDate() + 1);
+            return d.getTime();
+        };
+        const plannedStart = start ? nextAt(start, now) : now;
+        const plannedEnd = end ? nextAt(end, plannedStart) : plannedStart + duration * 60000;
+
+        try {
+            const response = await axios.get(this.apiUrl, {auth: {username: this.username, password: this.password}, timeout: REQUEST_TIMEOUT, params: PARAMS});
+            if (response.data.successful !== true) {
+                this.doErrorHandling(response.data);
+                return;
+            }
+            await this.setStateAsync('status.mode', {val: 99, ack: true});
+            await this.setStateAsync('job.requested', {val: now, ack: true});
+            await this.setStateAsync('job.plannedStart', {val: plannedStart, ack: true});
+            await this.setStateAsync('job.plannedEnd', {val: plannedEnd, ack: true});
+            await this.updateJobState();
+            this.log.info(`Mowing job sent: ${JSON.stringify(PARAMS)} - planned ${new Date(plannedStart).toLocaleString()} to ${new Date(plannedEnd).toLocaleString()}`);
+        } catch (err) {
+            this.doErrorHandling(err);
+        }
+    }
+
+    /**
+     * Another mode was set (or the job cancelled): the job ends now
+     */
+    async endJob(mode) {
+        await this.setStateAsync('status.mode', {val: mode, ack: true});
+        const st = await this.getStateAsync('job.plannedEnd');
+        if (st && Number(st.val) > Date.now()) await this.setStateAsync('job.plannedEnd', {val: Date.now(), ack: true});
+        await this.updateJobState();
+    }
+
+    /**
+     * job.active / job.remaining from status.mode and the planned end of the last job sent by the adapter
+     */
+    async updateJobState() {
+        const val = async (id) => { const st = await this.getStateAsync(id); return st ? st.val : null; };
+        const now = Date.now();
+        const mode = Number(await val('status.mode'));
+        const requested = Number(await val('job.requested')) || 0;
+        const plannedEnd = Number(await val('job.plannedEnd')) || 0;
+        // the status poll may still report the previous mode shortly after sending the job
+        const active = mode === 99 || (requested > 0 && now - requested < 3 * 60000 && plannedEnd > now);
+        const remaining = active && plannedEnd > now ? Math.ceil((plannedEnd - now) / 60000) : 0;
+        await this.setStateAsync('job.active', {val: active, ack: true});
+        await this.setStateAsync('job.remaining', {val: remaining, ack: true});
+    }
+
+    /**
+     * Derived states: status.charging, weather.reason, job.active and job.remaining
      */
     async updateDerivedStates() {
         const val = async (id) => { const st = await this.getStateAsync(id); return st ? st.val : null; };
@@ -893,6 +1007,7 @@ class Robonect extends utils.Adapter {
             reason = active.length ? active.join(', ') : prev && prev !== WAITING ? prev + ' (waiting time)' : WAITING;
         }
         await this.setStateAsync('weather.reason', {val: reason, ack: true});
+        await this.updateJobState();
     }
 
     /**
