@@ -545,6 +545,7 @@ class Robonect extends utils.Adapter {
             'job.plannedEnd': {name: 'Planned end of the last job', type: 'number', role: 'value.time', write: false},
             'job.active': {name: 'Job running or waiting for its start (mode Job)', type: 'boolean', role: 'indicator', write: false},
             'job.remaining': {name: 'Remaining job time', type: 'number', role: 'value', unit: 'min', write: false},
+            'job.started': {name: 'Mower has mowed for the last job', type: 'boolean', role: 'indicator', write: false},
         };
         for (const id of Object.keys(JOB_OBJECTS)) {
             await this.setObjectNotExistsAsync(id, {type: 'state', common: {read: true, ...JOB_OBJECTS[id]}, native: {}});
@@ -954,6 +955,7 @@ class Robonect extends utils.Adapter {
             await this.setStateAsync('job.requested', {val: now, ack: true});
             await this.setStateAsync('job.plannedStart', {val: plannedStart, ack: true});
             await this.setStateAsync('job.plannedEnd', {val: plannedEnd, ack: true});
+            await this.setStateAsync('job.started', {val: false, ack: true});
             await this.updateJobState();
             this.log.info(`Mowing job sent: ${JSON.stringify(PARAMS)} - planned ${new Date(plannedStart).toLocaleString()} to ${new Date(plannedEnd).toLocaleString()}`);
         } catch (err) {
@@ -977,11 +979,26 @@ class Robonect extends utils.Adapter {
     async updateJobState() {
         const val = async (id) => { const st = await this.getStateAsync(id); return st ? st.val : null; };
         const now = Date.now();
-        const mode = Number(await val('status.mode'));
+        const mode = Number(await val('status.mode')), status = Number(await val('status.status'));
         const requested = Number(await val('job.requested')) || 0;
-        const plannedEnd = Number(await val('job.plannedEnd')) || 0;
-        // the status poll may still report the previous mode shortly after sending the job
-        const active = mode === 99 || (requested > 0 && now - requested < 3 * 60000 && plannedEnd > now);
+        let plannedEnd = Number(await val('job.plannedEnd')) || 0;
+        // Robonect accepts the job but keeps reporting mode Auto (0) while it runs (seen with firmware 1.x),
+        // so the job counts as running until its planned end - unless it evidently ended before:
+        // mode Manual/Home/End of day reported (e.g. Home set by the weather service at sunset),
+        // or the mower parked / switched off after it had mowed for this job
+        let active = requested > 0 && plannedEnd > now;
+        if (active && status === 2 && await val('job.started') !== true) await this.setStateAsync('job.started', {val: true, ack: true});
+        if (active && now - requested > 3 * 60000) {
+            const started = await val('job.started') === true;
+            const reason = [1, 2, 98].includes(mode) ? 'mode ' + mode : started && [1, 16].includes(status) ? 'status ' + status : '';
+            if (reason) {
+                plannedEnd = now;
+                active = false;
+                await this.setStateAsync('job.plannedEnd', {val: now, ack: true});
+                this.log.info(`Mowing job ended early (${reason})`);
+            }
+        }
+        if (mode === 99) active = true;
         const remaining = active && plannedEnd > now ? Math.ceil((plannedEnd - now) / 60000) : 0;
         await this.setStateAsync('job.active', {val: active, ack: true});
         await this.setStateAsync('job.remaining', {val: remaining, ack: true});

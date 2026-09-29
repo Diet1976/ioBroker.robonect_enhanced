@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "robonect",
-    "version": "1.5.0-fork.1",
+    "version": "1.5.0-fork.2",
     "news": {
+      "1.5.0-fork.2": {
+        "en": "Fix: a mowing job counts as running until its planned end (Robonect keeps reporting mode Auto during a job); new job.started",
+        "de": "Fix: Ein Mähauftrag gilt bis zum geplanten Ende als laufend (Robonect meldet währenddessen Modus Auto); neu job.started"
+      },
       "1.5.0-fork.1": {
         "en": "Fork Diet1976: fixes (password log, rest period over midnight, request timeout, weather timestamp), weather.remaining/reason, status.charging, info.lastUpdate, poll while sleeping, mowing jobs (job.*) with planned start/end and remaining time",
         "de": "Fork Diet1976: Fehlerbehebungen (Passwort im Log, Ruhezeit über Mitternacht, Request-Timeout, Wetter-Zeitstempel), weather.remaining/reason, status.charging, info.lastUpdate, Abfrage im Schlaf, Mähaufträge (job.*) mit geplantem Start/Ende und Restzeit"

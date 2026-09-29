@@ -53,9 +53,12 @@ Set the parameters and press `job.send` (setting `status.mode` to 99 does the sa
 | `job.send` / `job.cancel` | Send the job / cancel it (switches to mode Auto) |
 
 The Robonect API does not report start, end or remaining time of a job, so the adapter tracks the jobs it sent itself:
-`job.requested` (time sent), `job.plannedStart`, `job.plannedEnd`, `job.active` (mode Job) and `job.remaining`
-(minutes until the planned end, updated with every status poll). Jobs placed in the Robonect web UI or app only show up
-as `status.mode` 99 without times. Any other mode set by the adapter ends the tracked job.
+`job.requested` (time sent), `job.plannedStart`, `job.plannedEnd`, `job.active`, `job.started` (mower has mowed for
+the job) and `job.remaining` (minutes until the planned end, updated with every status poll). Robonect accepts a job
+but may keep reporting mode Auto while it runs, so the job counts as running until its planned end unless it
+evidently ended before: another mode set by the adapter, mode Manual/Home/End of day reported (e.g. Home set by the
+weather service at sunset), or the mower parked/switched off after it had mowed. The planned end is then set to that
+time. Jobs placed in the Robonect web UI or app are not tracked.
 
 ### Password for Robonect
 
@@ -101,6 +104,9 @@ executing  `sudo chmod 4755 /bin/ping` in a shell inside the ioBroker container.
 permission issue between the iobroker user and the ping utility.
 
 ## Changelog
+### 1.5.0-fork.2 (2026-09-29)
+- (Diet1976) Fix: a job counts as running until its planned end - Robonect keeps reporting mode Auto during a job
+
 ### 1.5.0-fork.1 (2026-09-29)
 - (Diet1976) Fix: the Robonect password is no longer written to the log on HTTP 401
 - (Diet1976) Fix: rest periods spanning midnight (e.g. 22:00-06:00) were not detected

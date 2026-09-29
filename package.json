@@ -1,6 +1,6 @@
 {
   "name": "iobroker.robonect",
-  "version": "1.5.0-fork.1",
+  "version": "1.5.0-fork.2",
   "description": "Robonect HX for lawn mower robots from Husquarna, Flymo, McCulloch and Gardena",
   "keywords": [
     "ioBroker",
